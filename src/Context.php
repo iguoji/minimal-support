@@ -11,11 +11,20 @@ use Swoole\Coroutine;
 class Context
 {
     /**
+     * 数据集
+     */
+    protected static array $dataset = [];
+
+    /**
      * 设置数据
      */
     public static function set(string $key, mixed $data) : void
     {
-        Coroutine::getContext()[$key] = $data;
+        if (Coroutine::getCid() == -1) {
+            static::$dataset[$key] = $data;
+        } else {
+            Coroutine::getContext()[$key] = $data;
+        }
     }
 
     /**
@@ -23,7 +32,11 @@ class Context
      */
     public static function get(string $key) : mixed
     {
-        return Coroutine::getContext()[$key];
+        if (Coroutine::getCid() == -1) {
+            return static::$dataset[$key];
+        } else {
+            return Coroutine::getContext()[$key];
+        }
     }
 
     /**
@@ -31,15 +44,23 @@ class Context
      */
     public static function has(string $key) : bool
     {
-        return isset(Coroutine::getContext()[$key]);
+        if (Coroutine::getCid() == -1) {
+            return isset(static::$dataset[$key]);
+        } else {
+            return isset(Coroutine::getContext()[$key]);
+        }
     }
 
     /**
      * 移除数据
      */
-    public static function del(string $key)
+    public static function del(string $key) : void
     {
-        unset(Coroutine::getContext()[$key]);
+        if (Coroutine::getCid() == -1) {
+            unset(static::$dataset[$key]);
+        } else {
+            unset(Coroutine::getContext()[$key]);
+        }
     }
 
     /**
