@@ -1,5 +1,6 @@
 {
     "name": "iguoji/minimal-support",
+    "type": "library",
     "description": "php support",
     "keywords": ["support"],
     "homepage": "https://github.com/iguoji/minimal-support",
