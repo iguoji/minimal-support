@@ -250,23 +250,4 @@ class Arr
         // 返回数组
         return $array;
     }
-
-    /**
-     * 文件夹排序
-     */
-    public function directorySort(&$array)
-    {
-        return usort($array, function($one, $two){
-            $oneScore = File::isDirectory($one) ? 2 : 1;
-            $twoScore = File::isDirectory($two) ? 2 : 1;
-            if ($oneScore == $twoScore) {
-                if ($one > $two) {
-                    $oneScore++;
-                } else if ($two > $one) {
-                    $twoScore++;
-                }
-            }
-            return $oneScore <=> $twoScore;
-        });
-    }
 }
