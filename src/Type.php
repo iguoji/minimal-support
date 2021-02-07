@@ -81,10 +81,79 @@ class Type
     }
 
     /**
+     * 转为布尔
+     */
+    public static function bool(mixed $value) : bool
+    {
+        if (in_array(strtolower($value), ['0', 'false'])) {
+            return false;
+        } else {
+            return (bool) $value;
+        }
+    }
+
+    /**
+     * 是否为字符串
+     */
+    public static function isString(mixed $value) : bool
+    {
+        return is_string($value);
+    }
+
+    /**
+     * 转为字符串
+     */
+    public static function string(mixed $value) : null|array|string
+    {
+        if (is_scalar($value)) {
+            return strtolower($value) == 'null' ? null : (string) $value;
+        } else if (is_array($value)) {
+            return array_map(fn($s) => self::string($s), $value);
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * 是否为数组
      */
     public static function isArray(mixed $value) : bool
     {
         return is_array($value);
+    }
+
+    /**
+     * 转为数组
+     */
+    public static function array(mixed $value) : array
+    {
+        return is_array($value) ? $value : [$value];
+    }
+
+    /**
+     * 类型转换
+     */
+    public static function transform(mixed $value, string $type) : mixed
+    {
+        if (is_array($value) && in_array($type, ['int', 'float', 'bool', 'string'])) {
+            return array_map(fn($v) => self::transform($v, $type), $value);
+        }
+        switch ($type) {
+            case 'int':
+                return self::int($value);
+                break;
+            case 'float':
+                return self::float($value);
+                break;
+            case 'bool':
+                return self::bool($value);
+                break;
+            case 'string':
+                return self::string($value);
+                break;
+            default:
+                return $value;
+                break;
+        }
     }
 }
