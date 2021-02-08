@@ -53,7 +53,7 @@ class Type
     /**
      * 转为小数
      */
-    public static function float(mixed $number, int $decimals = 2) : array|int
+    public static function float(mixed $number, int $decimals = 2) : array|float
     {
         if (is_scalar($number)) {
             return (float) number_format((float) $number, $decimals, '.', '');
