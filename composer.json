@@ -4,6 +4,7 @@
     "description": "php support",
     "keywords": ["support"],
     "homepage": "https://github.com/iguoji/minimal-support",
+    "license": "Apache-2.0",
     "require": {
         "php": ">=8.0.0"
     },
