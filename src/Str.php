@@ -9,9 +9,16 @@ namespace Minimal\Support;
 class Str
 {
     /**
+     * 静态缓存
+     */
+    protected static $snakeCache = [];
+    protected static $camelCache = [];
+    protected static $studlyCache = [];
+
+    /**
      * 获取指定长度的随机字母数字组合的字符串
      */
-    public static function random(int $length = 6, int $type = null, string $addChars = ''): string
+    public static function random(int $length = 6, int $type = null, string $addChars = '') : string
     {
         $str = '';
         switch ($type) {
@@ -42,9 +49,101 @@ class Str
             $str = substr($chars, 0, $length);
         } else {
             for ($i = 0; $i < $length; $i++) {
-                $str .= mb_substr($chars, (int) floor(mt_rand(0, mb_strlen($chars, 'utf-8') - 1)), 1);
+                $str .= mb_substr($chars, floor(mt_rand(0, mb_strlen($chars, 'utf-8') - 1)), 1);
             }
         }
         return $str;
+    }
+
+    /**
+     * 按指定字符进行切割成数组（不区分大小写）
+     */
+    public static function split(string $delimiter, string $string) : array
+    {
+        $array = [];
+        $start = 0;
+        $index = 0;
+        $length = strlen($delimiter);
+        while (false !== $index = stripos($string, $delimiter, $index)) {
+            $array[] = substr($string, $start, $index);
+            $start = $index;
+            $index += $length;
+        }
+        $array[] = !$start ? $string : substr($string, $start + $length);
+        return $array;
+    }
+
+    /**
+     * 按指定字符切割后通过回调函数进行处理并再次返回拼接后的字符串
+     */
+    public static function map(string $string, callable $callback, string $delimiter = '') : string
+    {
+        $pieces = self::split($delimiter, $string);
+        $pieces = Arr::each($callback, $pieces);
+        return implode($delimiter, $pieces);
+    }
+
+    /**
+     * 字符串转小写
+     */
+    public static function lower(string $value): string
+    {
+        return mb_strtolower($value, 'UTF-8');
+    }
+
+    /**
+     * 字符串转大写
+     */
+    public static function upper(string $value): string
+    {
+        return mb_strtoupper($value, 'UTF-8');
+    }
+
+    /**
+     * 驼峰转下划线
+     */
+    public static function snake(string $value, string $delimiter = '_'): string
+    {
+        $key = $value;
+
+        if (isset(static::$snakeCache[$key][$delimiter])) {
+            return static::$snakeCache[$key][$delimiter];
+        }
+
+        if (!ctype_lower($value)) {
+            $value = preg_replace('/\s+/u', '', $value);
+
+            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
+        }
+
+        return static::$snakeCache[$key][$delimiter] = $value;
+    }
+
+    /**
+     * 下划线转驼峰(首字母小写)
+     */
+    public static function camel(string $value): string
+    {
+        if (isset(static::$camelCache[$value])) {
+            return static::$camelCache[$value];
+        }
+
+        return static::$camelCache[$value] = lcfirst(static::studly($value));
+    }
+
+    /**
+     * 下划线转驼峰(首字母大写)
+     */
+    public static function studly(string $value): string
+    {
+        $key = $value;
+
+        if (isset(static::$studlyCache[$key])) {
+            return static::$studlyCache[$key];
+        }
+
+        $value = ucwords(str_replace(['-', '_'], ' ', $value));
+
+        return static::$studlyCache[$key] = str_replace(' ', '', $value);
     }
 }
