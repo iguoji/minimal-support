@@ -106,7 +106,8 @@ class Type
     public static function string(mixed $value) : null|array|string
     {
         if (is_scalar($value)) {
-            return strtolower($value) == 'null' ? null : (string) $value;
+            $value = (string) $value;
+            return strtolower($value) == 'null' ? null : $value;
         } else if (is_array($value)) {
             return array_map(fn($s) => self::string($s), $value);
         } else {
